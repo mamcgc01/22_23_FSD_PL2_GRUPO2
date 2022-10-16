@@ -18,15 +18,13 @@ public class ClientHandler implements Runnable {
 
     public ClientHandler(Socket socket) {
         try {
-            
+
             this.socket = socket;
             this.bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             this.br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             this.nomeUtilizador = br.readLine();
             clientHandlers.add(this);
             broadcastMessage("Servidor: " + nomeUtilizador + "entrou no chat");
-
-
 
         } catch (IOException e) {
             closeEverything(socket, br, bw);
@@ -36,7 +34,17 @@ public class ClientHandler implements Runnable {
     @Override
     public void run() {
         // TODO Auto-generated method stub
-        
+        String messageFromClient;
+
+        while (socket.isConnected()) {
+            try {
+                messageFromClient = br.readLine();
+                broadcastMessage(messageFromClient);
+
+            } catch (IOException e) {
+                closeEverything(socket, br, bw);
+                break;
+            }
+        }
     }
-    
 }
