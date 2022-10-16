@@ -1,6 +1,7 @@
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
@@ -11,7 +12,7 @@ public class ClientHandler implements Runnable {
 
     public static ArrayList<ClientHandler> clientHandlers = new ArrayList<>();
     private Socket socket;
-    private BufferedReader bf;
+    private BufferedReader br;
     private BufferedWriter bw;
     private String nomeUtilizador;
 
@@ -20,8 +21,15 @@ public class ClientHandler implements Runnable {
             
             this.socket = socket;
             this.bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            this.bf = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            this.br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            this.nomeUtilizador = br.readLine();
+            clientHandlers.add(this);
+            broadcastMessage("Servidor: " + nomeUtilizador + "entrou no chat");
 
+
+
+        } catch (IOException e) {
+            closeEverything(socket, br, bw);
         }
     }
 
