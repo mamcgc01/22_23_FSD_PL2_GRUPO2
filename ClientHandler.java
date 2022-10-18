@@ -10,11 +10,12 @@ import java.util.*;
 
 public class ClientHandler implements Runnable {
 
-    public static ArrayList<ClientHandler> clientHandlers = new ArrayList<>();
-    private Socket socket;
-    private BufferedReader br;
-    private BufferedWriter bw;
-    private String nomeUtilizador;
+    public static ArrayList<ClientHandler> clientHandlers = new ArrayList<>(); // permite enviar mensagens a todos os
+                                                                               // clientes conectados
+    private Socket socket; // socket usada para establecer a conexao entre o cliente e o servidor
+    private BufferedReader br; // ler dados,neste caso as mensagens enviadas pelo cliente
+    private BufferedWriter bw; // enviar dados, neste caso as mensagens evnviadas pelo cliente
+    private String nomeUtilizador; // identificador de cada cliente
 
     public ClientHandler(Socket socket) {
         try {
@@ -23,17 +24,19 @@ public class ClientHandler implements Runnable {
             this.bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             this.br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             this.nomeUtilizador = br.readLine();
-            clientHandlers.add(this);
+            clientHandlers.add(this); // adiciona o novo utilizador à array list de modo a que estes possam ler e
+                                      // enviar mensagens
             broadcastMessage("Servidor: " + nomeUtilizador + "entrou no chat");
 
         } catch (IOException e) {
-            closeEverything(socket, br, bw);
+            fecharOperacao(socket, br, bw);
         }
     }
 
     @Override
     public void run() {
-        // TODO Auto-generated method stub
+        // O método run corre num thread a parte com o intuito de "ouvir" as mensagens,
+        // daí ser necessário @Override
         String messageFromClient;
 
         while (socket.isConnected()) {
@@ -42,23 +45,45 @@ public class ClientHandler implements Runnable {
                 broadcastMessage(messageFromClient);
 
             } catch (IOException e) {
-                closeEverything(socket, br, bw);
+                fecharOperacao(socket, br, bw);
                 break;
             }
         }
     }
 
-public void broadcastMessage (String mensagemParaEnviar) {
-    for (ClientHandler clientHandler : clientHandlers) {
+    public void broadcastMessage(String mensagemParaEnviar) {
+        for (ClientHandler clientHandler : clientHandlers) {
+            try {
+                if (!clientHandler.nomeUtilizador.equals(nomeUtilizador)) {
+                    clientHandler.bw.write(mensagemParaEnviar);
+                    clientHandler.bw.newLine();
+                    clientHandler.bw.flush();
+                }
+            } catch (IOException e) {
+                fecharOperacao(socket, br, bw);
+            }
+        }
+    }
+
+    public void removerClientHandler() {
+        clientHandlers.remove(this);
+        broadcastMessage("Servidor: " + nomeUtilizador + "saiu do chat!");
+    }
+
+    public void fecharOperacao(Socket socket, BufferedReader br, BufferedWriter bw) {
         try {
-            if (!clientHandler.nomeUtilizador.equals((nomeUtilizador)) {
-                clientHandler.bw.write(mensagemParaEnviar);
-                clientHandler.bw.newLine();
-                clientHandler.bw.flush();
+            if (br != null) {
+                br.close();
+            }
+            if (bw != null) {
+                bw.close();
+            }
+            if (socket != null) {
+                socket.close();
             }
         } catch (IOException e) {
-            
+            e.printStackTrace();
+        }
     }
-}
 
 }
