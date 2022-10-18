@@ -47,4 +47,18 @@ public class ClientHandler implements Runnable {
             }
         }
     }
+
+public void broadcastMessage (String mensagemParaEnviar) {
+    for (ClientHandler clientHandler : clientHandlers) {
+        try {
+            if (!clientHandler.nomeUtilizador.equals((nomeUtilizador)) {
+                clientHandler.bw.write(mensagemParaEnviar);
+                clientHandler.bw.newLine();
+                clientHandler.bw.flush();
+            }
+        } catch (IOException e) {
+            
+    }
+}
+
 }
