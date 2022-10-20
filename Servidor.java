@@ -17,7 +17,7 @@ public class Servidor {
 
                Socket socket = svSocket.accept();
                System.out.println("Entrou um novo utilizador no chat.");
-               ClientHandler ClientHandler = new ClientHandler(socket);
+               ClientHandler clientHandler = new ClientHandler(socket);
 
                Thread thread = new Thread(clientHandler);
                thread.start();
@@ -30,8 +30,8 @@ public class Servidor {
 
     public void fecharSVSocket() {
         try {
-            if (serverSocket != null) {
-                serverSocket.close();
+            if (svSocket != null) {
+                svSocket.close();
             }
 
         } catch (IOException e) {

@@ -1,6 +1,7 @@
 import java.util.*;
 import java.io.*;
 import java.net.Socket;
+import java.net.UnknownHostException;
 
 public class Cliente {
 
@@ -74,7 +75,7 @@ public class Cliente {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws UnknownHostException, IOException {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Introduza o seu nome de utilizador!");
         String nomeUtilizador = scanner.nextLine();
