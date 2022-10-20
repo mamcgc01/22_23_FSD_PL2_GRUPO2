@@ -30,7 +30,7 @@ public class Servidor {
 
     public void fecharSVSocket() {
         try {
-            if (ServerSocket != null) {
+            if (serverSocket != null) {
                 serverSocket.close();
             }
 
@@ -40,7 +40,7 @@ public class Servidor {
     }
 
     public static void main(String[] args) throws IOException {
-        ServerSocket serverSocket = new ServerSocket(1234);
+        ServerSocket serverSocket = new ServerSocket(2000);
         Servidor servidor = new Servidor(serverSocket);
         servidor.iniciarSV();
     }

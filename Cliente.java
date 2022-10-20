@@ -78,7 +78,7 @@ public class Cliente {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Introduza o seu nome de utilizador!");
         String nomeUtilizador = scanner.nextLine();
-        Socket socket = new Socket("localhost", 1234);
+        Socket socket = new Socket("localhost",2000);
         Cliente cliente = new Cliente(socket, nomeUtilizador);
         cliente.ouvirMensagem();
         cliente.enviarMensagem();
