@@ -1,11 +1,9 @@
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
-import java.nio.Buffer;
 import java.util.*;
 
 public class ClientHandler implements Runnable {
@@ -26,7 +24,7 @@ public class ClientHandler implements Runnable {
             this.nomeUtilizador = br.readLine();
             clientHandlers.add(this); // adiciona o novo utilizador à array list de modo a que estes possam ler e
                                       // enviar mensagens
-            broadcastMessage("Servidor: " + nomeUtilizador + " entrou no chat.");
+            SESSION_UPDATE("SESSION_UPDATE: " + nomeUtilizador + " entrou no chat.");
 
         } catch (IOException e) {
             fecharOperacao(socket, br, bw);
@@ -42,7 +40,7 @@ public class ClientHandler implements Runnable {
         while (socket.isConnected()) {
             try {
                 messageFromClient = br.readLine();
-                broadcastMessage(messageFromClient);
+                SESSION_UPDATE(messageFromClient);
 
             } catch (IOException e) {
                 fecharOperacao(socket, br, bw);
@@ -51,7 +49,7 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    public void broadcastMessage(String mensagemParaEnviar) {
+    public void SESSION_UPDATE(String mensagemParaEnviar) {
         for (ClientHandler clientHandler : clientHandlers) {
             try {
                 if (!clientHandler.nomeUtilizador.equals(nomeUtilizador)) {
@@ -67,7 +65,7 @@ public class ClientHandler implements Runnable {
 
     public void removerClientHandler() {
         clientHandlers.remove(this);
-        broadcastMessage("Servidor: " + nomeUtilizador + "saiu do chat!");
+        SESSION_UPDATE("SESSION_UPDATE: " + nomeUtilizador + "saiu do chat!");
     }
 
     public void fecharOperacao(Socket socket, BufferedReader br, BufferedWriter bw) {
