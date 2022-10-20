@@ -26,7 +26,7 @@ public class ClientHandler implements Runnable {
             this.nomeUtilizador = br.readLine();
             clientHandlers.add(this); // adiciona o novo utilizador à array list de modo a que estes possam ler e
                                       // enviar mensagens
-            broadcastMessage("Servidor: " + nomeUtilizador + "entrou no chat");
+            broadcastMessage("Servidor: " + nomeUtilizador + " entrou no chat.");
 
         } catch (IOException e) {
             fecharOperacao(socket, br, bw);
