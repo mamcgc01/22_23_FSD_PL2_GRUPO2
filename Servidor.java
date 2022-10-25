@@ -4,13 +4,13 @@ import java.net.Socket;
 
 public class Servidor {
 
-    private ServerSocket svSocket;
+    private ServerSocket svSocket; // objeto responsável por "escutar novas conexões e criar uma socket para comunicar"
 
     public Servidor(ServerSocket svSocket) {
         this.svSocket = svSocket;
     }
 
-    public void iniciarSV() {
+    public void iniciarServidor() {
         try {
 
             while (!svSocket.isClosed()) {
@@ -39,9 +39,24 @@ public class Servidor {
         }
     }
 
+    public void SESSION_UPDATE () {
+        try {
+            while (true) {
+                for(int i=0; i < ClientHandler.clientHandlers.size(); i++){
+                    System.out.println(ClientHandler.clientHandlers.get(i));
+                }
+
+                Thread.sleep(120 * 1000);
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void main(String[] args) throws IOException {
         ServerSocket serverSocket = new ServerSocket(2000);
         Servidor servidor = new Servidor(serverSocket);
-        servidor.iniciarSV();
+        servidor.SESSION_UPDATE();
+        servidor.iniciarServidor();
     }
 }
