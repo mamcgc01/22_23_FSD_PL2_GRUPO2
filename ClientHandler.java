@@ -24,7 +24,7 @@ public class ClientHandler implements Runnable {
             this.nomeUtilizador = br.readLine();
             clientHandlers.add(this); // adiciona o novo utilizador à array list de modo a que estes possam ler e
                                       // enviar mensagens
-            SESSION_UPDATE("SESSION_UPDATE: " + nomeUtilizador + " entrou no chat.");
+            messageToSend("Servidor: " + nomeUtilizador + " entrou no chat.");
 
         } catch (IOException e) {
             fecharOperacao(socket, br, bw);
@@ -40,8 +40,7 @@ public class ClientHandler implements Runnable {
         while (socket.isConnected()) {
             try {
                 messageFromClient = br.readLine();
-                SESSION_UPDATE(messageFromClient);
-
+                messageToSend(messageFromClient);
             } catch (IOException e) {
                 fecharOperacao(socket, br, bw);
                 break;
@@ -49,7 +48,7 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    public void SESSION_UPDATE(String mensagemParaEnviar) {
+    public void messageToSend(String mensagemParaEnviar) {
         for (ClientHandler clientHandler : clientHandlers) {
             try {
                 if (!clientHandler.nomeUtilizador.equals(nomeUtilizador)) {
@@ -65,7 +64,7 @@ public class ClientHandler implements Runnable {
 
     public void removerClientHandler() {
         clientHandlers.remove(this);
-        SESSION_UPDATE("SESSION_UPDATE: " + nomeUtilizador + "saiu do chat!");
+        messageToSend("Servidor: " + nomeUtilizador + "saiu do chat!");
     }
 
     public void fecharOperacao(Socket socket, BufferedReader br, BufferedWriter bw) {
