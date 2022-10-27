@@ -1,13 +1,15 @@
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 
 public class Servidor {
 
     private ServerSocket svSocket; // objeto responsável por "escutar novas conexões e criar uma socket para comunicar"
 
-    public Servidor(ServerSocket svSocket) {
+    public Servidor(ServerSocket svSocket) throws SocketException {
         this.svSocket = svSocket;
+        svSocket.setSoTimeout(120000);
     }
 
     public void iniciarServidor() {
@@ -39,24 +41,9 @@ public class Servidor {
         }
     }
 
-    public void SESSION_UPDATE () {
-        try {
-            while (true) {
-                for(int i=0; i < ClientHandler.clientHandlers.size(); i++){
-                    System.out.println(ClientHandler.clientHandlers.get(i));
-                }
-
-                Thread.sleep(120 * 1000);
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
     public static void main(String[] args) throws IOException {
         ServerSocket serverSocket = new ServerSocket(2000);
-        Servidor servidor = new Servidor(serverSocket);
-        servidor.SESSION_UPDATE();
+        Servidor servidor = new Servidor(serverSocket); 
         servidor.iniciarServidor();
     }
 }

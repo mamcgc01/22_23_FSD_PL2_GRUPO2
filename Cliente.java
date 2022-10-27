@@ -13,6 +13,7 @@ public class Cliente {
     public Cliente(Socket socket, String nomeUtilizador) {
         try {
             this.socket = socket;
+            socket.connect(null, 120000);
             this.bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             this.br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             this.nomeUtilizador = nomeUtilizador;
