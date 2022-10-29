@@ -84,4 +84,11 @@ public class ClientHandler implements Runnable {
             e.printStackTrace();
         }
     }
+
+    public void updateRequest () {
+        for (int i = 0; i < 10; i++) {
+            System.out.println(clientHandlers.toString());
+        }
+    }
+
 }
