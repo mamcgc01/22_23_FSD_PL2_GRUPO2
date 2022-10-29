@@ -19,36 +19,37 @@ public class ClientHandler implements Runnable {
         try {
 
             this.socket = socket;
+            socket.setSoTimeout(120*1000);
             this.bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             this.br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             this.nomeUtilizador = br.readLine();
             clientHandlers.add(this); // adiciona o novo utilizador à array list de modo a que estes possam ler e
                                       // enviar mensagens
-            messageToSend("Servidor: " + nomeUtilizador + " entrou no chat.");
+            messageToBroadcast("SESSION_UPDATE: " + nomeUtilizador + " entrou no chat.");
 
         } catch (IOException e) {
-            fecharOperacao(socket, br, bw);
+            closeConnection(socket, br, bw);
         }
     }
 
     @Override
     public void run() {
-        // O método run corre num thread a parte com o intuito de "ouvir" as mensagens,
+        // O método run corre numa thread a parte com o intuito de "ouvir" as mensagens,
         // daí ser necessário @Override
         String messageFromClient;
 
         while (socket.isConnected()) {
             try {
                 messageFromClient = br.readLine();
-                messageToSend(messageFromClient);
+                messageToBroadcast(messageFromClient);
             } catch (IOException e) {
-                fecharOperacao(socket, br, bw);
+                closeConnection(socket, br, bw);
                 break;
             }
         }
     }
 
-    public void messageToSend(String mensagemParaEnviar) {
+    public void messageToBroadcast(String mensagemParaEnviar) {
         for (ClientHandler clientHandler : clientHandlers) {
             try {
                 if (!clientHandler.nomeUtilizador.equals(nomeUtilizador)) {
@@ -57,17 +58,18 @@ public class ClientHandler implements Runnable {
                     clientHandler.bw.flush();
                 }
             } catch (IOException e) {
-                fecharOperacao(socket, br, bw);
+                closeConnection(socket, br, bw);
             }
         }
     }
 
-    public void removerClientHandler() {
+    public void closeThread() {
         clientHandlers.remove(this);
-        messageToSend("Servidor: " + nomeUtilizador + "saiu do chat!");
+        messageToBroadcast("SESSION_UPDATE: " + nomeUtilizador + " saiu do chat!");
     }
 
-    public void fecharOperacao(Socket socket, BufferedReader br, BufferedWriter bw) {
+    public void closeConnection(Socket socket, BufferedReader br, BufferedWriter bw) {
+        closeThread();
         try {
             if (br != null) {
                 br.close();
@@ -82,5 +84,4 @@ public class ClientHandler implements Runnable {
             e.printStackTrace();
         }
     }
-
 }

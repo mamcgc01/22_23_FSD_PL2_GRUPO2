@@ -9,10 +9,12 @@ public class Servidor {
 
     public Servidor(ServerSocket svSocket) throws SocketException {
         this.svSocket = svSocket;
-        svSocket.setSoTimeout(120000);
     }
 
     public void iniciarServidor() {
+
+        System.out.println("SESSAO INICIADA");
+
         try {
 
             while (!svSocket.isClosed()) {
@@ -21,12 +23,13 @@ public class Servidor {
                System.out.println("Entrou um novo utilizador no chat.");
                ClientHandler clientHandler = new ClientHandler(socket);
 
+
                Thread thread = new Thread(clientHandler);
                thread.start();
             }
 
         } catch (IOException e) {
-
+            fecharSVSocket();
         }
     }
 

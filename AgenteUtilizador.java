@@ -3,22 +3,21 @@ import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-public class Cliente {
+public class AgenteUtilizador {
 
     private Socket socket;
     private BufferedReader br;
     private BufferedWriter bw;
     private String nomeUtilizador;
 
-    public Cliente(Socket socket, String nomeUtilizador) {
+    public AgenteUtilizador(Socket socket, String nomeUtilizador) {
         try {
             this.socket = socket;
-            socket.connect(null, 120000);
             this.bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             this.br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             this.nomeUtilizador = nomeUtilizador;
         } catch (IOException e) {
-            fecharOperacao(socket, br, bw);
+            closeConnection(socket, br, bw);
         }
     }
 
@@ -36,7 +35,7 @@ public class Cliente {
                 bw.flush();
             }
         } catch (Exception e) {
-            fecharOperacao(socket, br, bw);
+            closeConnection(socket, br, bw);
         }
     }
 
@@ -52,15 +51,14 @@ public class Cliente {
                         System.out.println(msgFromGroupChat);
 
                     } catch (IOException e) {
-                        fecharOperacao(socket, br, bw);
+                        closeConnection(socket, br, bw);
                     }
-
                 }
             }
         }).start();
     }
 
-    public void fecharOperacao(Socket socket, BufferedReader br, BufferedWriter bw) {
+    public void closeConnection(Socket socket, BufferedReader br, BufferedWriter bw) {
         try {
             if (br != null) {
                 br.close();
@@ -81,8 +79,8 @@ public class Cliente {
         System.out.println("Introduza o seu nome de utilizador!");
         String nomeUtilizador = scanner.nextLine();
         Socket socket = new Socket("localhost",2000);
-        Cliente cliente = new Cliente(socket, nomeUtilizador);
-        cliente.ouvirMensagem();
-        cliente.enviarMensagem();
+        AgenteUtilizador agenteUtilizador = new AgenteUtilizador(socket, nomeUtilizador);
+        agenteUtilizador.ouvirMensagem();
+        agenteUtilizador.enviarMensagem();
     }
 }
