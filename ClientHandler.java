@@ -4,12 +4,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.*;
 
 public class ClientHandler implements Runnable {
 
-    public static ArrayList<ClientHandler> clientHandlers = new ArrayList<>(); // permite enviar mensagens a todos os
-                                                                               // clientes conectados
+    public static ArrayList<ClientHandler> clientHandlers = new ArrayList<>(); // permite enviar mensagens a todos os clientes conectados
+
     private Socket socket; // socket usada para establecer a conexao entre o cliente e o servidor
     private BufferedReader br; // ler dados,neste caso as mensagens enviadas pelo cliente
     private BufferedWriter bw; // enviar dados, neste caso as mensagens evnviadas pelo cliente
@@ -27,7 +28,8 @@ public class ClientHandler implements Runnable {
                                       // enviar mensagens
             messageToBroadcast("SESSION_UPDATE: " + nomeUtilizador + " entrou no chat.");
 
-        } catch (IOException e) {
+
+        } catch (Exception e) {
             closeConnection(socket, br, bw);
         }
     }
@@ -84,11 +86,4 @@ public class ClientHandler implements Runnable {
             e.printStackTrace();
         }
     }
-
-    public void updateRequest () {
-        for (int i = 0; i < 10; i++) {
-            System.out.println(clientHandlers.toString());
-        }
-    }
-
 }

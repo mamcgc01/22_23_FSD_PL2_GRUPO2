@@ -5,15 +5,14 @@ import java.net.SocketException;
 
 public class Servidor {
 
-    private ServerSocket svSocket; // objeto responsável por "escutar novas conexões e criar uma socket para comunicar"
+    private ServerSocket svSocket; // objeto responsável por "receber novas conexões e criar uma socket para comunicar"
+    static int DEFAULT_PORT = 2000;
 
     public Servidor(ServerSocket svSocket) throws SocketException {
         this.svSocket = svSocket;
     }
 
     public void iniciarServidor() {
-
-        System.out.println("SESSAO INICIADA");
 
         try {
 
@@ -22,7 +21,6 @@ public class Servidor {
                Socket socket = svSocket.accept();
                System.out.println("Entrou um novo utilizador no chat.");
                ClientHandler clientHandler = new ClientHandler(socket);
-
 
                Thread thread = new Thread(clientHandler);
                thread.start();
