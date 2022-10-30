@@ -16,17 +16,21 @@ public class ClientHandler implements Runnable {
     private BufferedWriter bw; // enviar dados, neste caso as mensagens evnviadas pelo cliente
     private String nomeUtilizador; // identificador de cada cliente
 
+    ArrayList<String> mensagens = new ArrayList<String>();
+
+
     public ClientHandler(Socket socket) {
         try {
 
             this.socket = socket;
-            socket.setSoTimeout(120*1000);
+            socket.setSoTimeout(120*1000); // timeout para o qual o servidor fica a espera de ouvir informação desta thread.
             this.bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             this.br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             this.nomeUtilizador = br.readLine();
             clientHandlers.add(this); // adiciona o novo utilizador à array list de modo a que estes possam ler e
                                       // enviar mensagens
             messageToBroadcast("SESSION_UPDATE: " + nomeUtilizador + " entrou no chat.");
+            messageToBroadcast("SESSION_UPDATE:" + mensagens.toString());
 
 
         } catch (Exception e) {
@@ -44,6 +48,7 @@ public class ClientHandler implements Runnable {
             try {
                 messageFromClient = br.readLine();
                 messageToBroadcast(messageFromClient);
+                mensagens.add(messageFromClient);
             } catch (IOException e) {
                 closeConnection(socket, br, bw);
                 break;
@@ -64,6 +69,12 @@ public class ClientHandler implements Runnable {
             }
         }
     }
+
+  /* public void updateRequest(String update) {
+        for (i = 0; i < mensagens.size(); i++) {
+
+        }
+    } */
 
     public void closeThread() {
         clientHandlers.remove(this);
