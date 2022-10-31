@@ -33,6 +33,9 @@ public class AgenteUtilizador {
                 bw.write(nomeUtilizador + ": " + mensagemParaEnviar);
                 bw.newLine();
                 bw.flush();
+                if (mensagemParaEnviar.equalsIgnoreCase("bye")) {
+                    closeConnection(socket, br, bw);
+                }
             }
         } catch (Exception e) {
             closeConnection(socket, br, bw);
@@ -44,12 +47,10 @@ public class AgenteUtilizador {
             @Override
             public void run() {
                 String msgFromGroupChat;
-
                 while (socket.isConnected()) {
                     try {
                         msgFromGroupChat = br.readLine();
                         System.out.println(msgFromGroupChat);
-
                     } catch (IOException e) {
                         closeConnection(socket, br, bw);
                     }
@@ -78,7 +79,7 @@ public class AgenteUtilizador {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Introduza o seu nome de utilizador!");
         String nomeUtilizador = scanner.nextLine();
-        Socket socket = new Socket("localhost",2000);
+        Socket socket = new Socket("localhost", 2000);
         AgenteUtilizador agenteUtilizador = new AgenteUtilizador(socket, nomeUtilizador);
         agenteUtilizador.ouvirMensagem();
         agenteUtilizador.enviarMensagem();
