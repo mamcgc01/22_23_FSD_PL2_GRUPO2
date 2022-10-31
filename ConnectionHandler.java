@@ -103,7 +103,7 @@ public class ConnectionHandler implements Runnable {
                 this.out.println(messagesList.get(i));
                 this.out.flush();
             }
-            this.out.println(".........");
+            this.out.println("FIM");
             this.out.flush();
         }
     }
@@ -115,7 +115,7 @@ public class ConnectionHandler implements Runnable {
                 this.out.println(connectionHandlers.get(i).nomeUtilizador.toString());
                 this.out.flush();
             }
-            this.out.println("...");
+            this.out.println("FIM");
             this.out.flush();
         }
     }

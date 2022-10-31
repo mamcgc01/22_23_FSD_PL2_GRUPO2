@@ -7,14 +7,14 @@ public class AgenteUtilizador {
     private Socket socket;
     private BufferedReader br;
     private BufferedWriter bw;
-    private String nomeUtilizador;
+    private String nomeDeUtilizador;
 
-    public AgenteUtilizador(Socket socket, String nomeUtilizador) {
+    public AgenteUtilizador(Socket socket, String nomeDeUtilizador) {
         try {
             this.socket = socket;
             this.bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             this.br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            this.nomeUtilizador = nomeUtilizador;
+            this.nomeDeUtilizador = nomeDeUtilizador;
         } catch (IOException e) {
             closeConnection(socket, br, bw);
         }
@@ -22,14 +22,14 @@ public class AgenteUtilizador {
 
     public void sendToGroupChat() {
         try {
-            bw.write(nomeUtilizador);
+            bw.write(nomeDeUtilizador);
             bw.newLine();
             bw.flush();
 
             Scanner scanner = new Scanner(System.in);
             while (socket.isConnected()) {
                 String userMessage = scanner.nextLine();
-                bw.write(nomeUtilizador + ": " + userMessage);
+                bw.write(nomeDeUtilizador + ": " + userMessage);
                 bw.newLine();
                 bw.flush();
             }
@@ -72,11 +72,11 @@ public class AgenteUtilizador {
     }
 
     public static void main(String[] args) throws IOException {
-        Scanner scanner = new Scanner(System.in); //Criamos um scanner para poder ler o nome utilizador que serve como identificador
+        Scanner scan = new Scanner(System.in); //Criamos um scanner para poder ler o nome utilizador que serve como identificador
         System.out.println("Introduza o seu nome de utilizador!");
-        String nomeUtilizador = scanner.nextLine();
-        Socket socket = new Socket("localhost", 8000); //Para conetar a diferentes computadores numa mesma rede especificar o valr "host" e a "porta"
-        AgenteUtilizador agenteUtilizador = new AgenteUtilizador(socket, nomeUtilizador);
+        String nomeDeUtilizador = scan.nextLine();
+        Socket sckt = new Socket("localhost", 8000); //Para conetar a diferentes computadores numa mesma rede especificar o valr "host" e a "porta"
+        AgenteUtilizador agenteUtilizador = new AgenteUtilizador(sckt, nomeDeUtilizador);
         agenteUtilizador.listenToGroupChat(); // fica sempre a escuta das mensagens do grupo
         agenteUtilizador.sendToGroupChat(); // metodo para enviar mensagens!
     }

@@ -5,21 +5,21 @@ import java.net.SocketException;
 
 public class Servidor {
 
-    private ServerSocket svSocket;// objeto responsável por "receber novas conexões e criar uma socket para comunicar"
+    private ServerSocket svSckt;// objeto responsável por "receber novas conexões e criar uma socket para comunicar"
 
-    public Servidor(ServerSocket svSocket) throws SocketException {
-        this.svSocket = svSocket;
+    public Servidor(ServerSocket svSckt) throws SocketException {
+        this.svSckt = svSckt;
     }
 
     public void iniciarServidor() {
 
         try {
 
-            while (!svSocket.isClosed()) {
+            while (!svSckt.isClosed()) {
 
-               Socket socket = svSocket.accept();
+               Socket sckt = svSckt.accept();
                System.out.println("Entrou um novo utilizador no chat.");
-               ConnectionHandler connectionHandler = new ConnectionHandler(socket);
+               ConnectionHandler connectionHandler = new ConnectionHandler(sckt);
 
                Thread thread = new Thread(connectionHandler);
                thread.start();
@@ -32,8 +32,8 @@ public class Servidor {
 
     public void fecharSVSocket() {
         try {
-            if (svSocket != null) {
-                svSocket.close();
+            if (svSckt != null) {
+                svSckt.close();
             }
 
         } catch (IOException e) {
@@ -47,8 +47,8 @@ public class Servidor {
 
     public static void main(String[] args) throws IOException {
         System.out.println("SERVIDOR INICIADO: WAITING FOR CONNECTIONS ");
-        ServerSocket serverSocket = new ServerSocket(8000);
-        Servidor servidor = new Servidor(serverSocket); 
+        ServerSocket serverSckt = new ServerSocket(8000);
+        Servidor servidor = new Servidor(serverSckt); 
         servidor.iniciarServidor();
     }
 }
