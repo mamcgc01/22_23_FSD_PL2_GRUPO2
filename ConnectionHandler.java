@@ -77,7 +77,7 @@ public class ConnectionHandler implements Runnable {
         for (ConnectionHandler connectionHandler : connectionHandlers) { // iterar para todas as threads
             try { //Metodo do update da sessao auxiliado por Nam Ha Minh Java Chat App mais espeficamente as linhas 77 a 81
                 if (!connectionHandler.nomeUtilizador.equals(nomeUtilizador)) {
-                    if (mensagemParaEnviar.equalsIgnoreCase("UPDATE?")) {
+                    if (mensagemParaEnviar.split(": ")[1].equalsIgnoreCase("SESSIONUPDATE")) {
                         this.out.println("UPDATE da SESSÃO");
                         this.out.flush();
                         updateUsersRequest();

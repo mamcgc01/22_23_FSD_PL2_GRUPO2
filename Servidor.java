@@ -23,6 +23,7 @@ public class Servidor {
 
                Thread thread = new Thread(connectionHandler);
                thread.start();
+               System.out.println(" PRIMA CRTL + C para terminar o programa/sessao ");
             }
 
         } catch (IOException e) {
