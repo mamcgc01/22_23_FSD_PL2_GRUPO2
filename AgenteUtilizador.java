@@ -1,7 +1,6 @@
 import java.util.*;
 import java.io.*;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 public class AgenteUtilizador {
 
@@ -29,8 +28,8 @@ public class AgenteUtilizador {
 
             Scanner scanner = new Scanner(System.in);
             while (socket.isConnected()) {
-                String mensagemParaEnviar = scanner.nextLine();
-                bw.write(nomeUtilizador + ": " + mensagemParaEnviar);
+                String userMessage = scanner.nextLine();
+                bw.write(nomeUtilizador + ": " + userMessage);
                 bw.newLine();
                 bw.flush();
             }
@@ -39,7 +38,7 @@ public class AgenteUtilizador {
         }
     }
 
-    public void listenToGroupChat() {
+    public void listenToGroupChat() { //metodo para ouvir mensagens do grupo ao mesmo tempo que podemos estar a enviar novas mensagens sem ter de aguardar, dai ser necessario o Override e invocacao da Thread;
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -53,7 +52,7 @@ public class AgenteUtilizador {
                     }
                 }
             }
-        }).start();
+        }).start(); //cria o objeto
     }
 
     public void closeConnection(Socket socket, BufferedReader br, BufferedWriter bw) {
@@ -72,13 +71,13 @@ public class AgenteUtilizador {
         }
     }
 
-    public static void main(String[] args) throws UnknownHostException, IOException {
-        Scanner scanner = new Scanner(System.in);
+    public static void main(String[] args) throws IOException {
+        Scanner scanner = new Scanner(System.in); //Criamos um scanner para poder ler o nome utilizador que serve como identificador
         System.out.println("Introduza o seu nome de utilizador!");
         String nomeUtilizador = scanner.nextLine();
-        Socket socket = new Socket("localhost", 2000);
+        Socket socket = new Socket("localhost", 8000); //Para conetar a diferentes computadores numa mesma rede especificar o valr "host" e a "porta"
         AgenteUtilizador agenteUtilizador = new AgenteUtilizador(socket, nomeUtilizador);
-        agenteUtilizador.listenToGroupChat();
-        agenteUtilizador.sendToGroupChat();
+        agenteUtilizador.listenToGroupChat(); // fica sempre a escuta das mensagens do grupo
+        agenteUtilizador.sendToGroupChat(); // metodo para enviar mensagens!
     }
 }

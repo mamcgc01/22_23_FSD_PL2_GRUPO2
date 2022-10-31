@@ -19,9 +19,9 @@ public class Servidor {
 
                Socket socket = svSocket.accept();
                System.out.println("Entrou um novo utilizador no chat.");
-               ClientHandler clientHandler = new ClientHandler(socket);
+               ConnectionHandler connectionHandler = new ConnectionHandler(socket);
 
-               Thread thread = new Thread(clientHandler);
+               Thread thread = new Thread(connectionHandler);
                thread.start();
             }
 
@@ -41,8 +41,13 @@ public class Servidor {
         }
     }
 
+    /* public void timerTask() {
+        Método com o intuito de imprimir um updateUsersRequest() de 120 em 120 segundos.
+    }*/
+
     public static void main(String[] args) throws IOException {
-        ServerSocket serverSocket = new ServerSocket(2000);
+        System.out.println("SERVIDOR INICIADO: WAITING FOR CONNECTIONS ");
+        ServerSocket serverSocket = new ServerSocket(8000);
         Servidor servidor = new Servidor(serverSocket); 
         servidor.iniciarServidor();
     }

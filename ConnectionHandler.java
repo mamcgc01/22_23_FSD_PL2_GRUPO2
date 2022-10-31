@@ -1,22 +1,32 @@
 import java.io.*;
 import java.net.Socket;
-import java.net.SocketException;
 import java.util.*;
+import java.util.TimerTask;
+import java.util.Timer;
 
-public class ClientHandler implements Runnable {
 
-    public static ArrayList<ClientHandler> clientHandlers = new ArrayList<>(); // permite enviar mensagens a todos os clientes conectados
+/*
+
+O METODO CONNECTIONHANDLER TEM A FUNCAO DE GERIR TODAS AS LIGACOES REQUISITADAS AO CLIENT DE MODO A QUE VARIOS UTILIZADORS
+POSSAM COMUNICAR AO MESMO TEMPO SEM QUE FIQUEM A ESPERA DE UMA RESPOSTA DO SERVIDOR DE CADA VEZ QUE ENVIAM/RECEBEM INFORMACAO
+
+*/
+
+public class ConnectionHandler implements Runnable {
+
+    public static ArrayList<ConnectionHandler> connectionHandlers = new ArrayList<>(); // permite enviar mensagens a todos os clientes conectados, guarda então todos os ConnectionHandler criados
 
     private Socket socket; // socket usada para establecer a conexao entre o cliente e o servidor
-    private BufferedReader br; // ler dados,neste caso as mensagens enviadas pelo cliente
-    private BufferedWriter bw; // enviar dados, neste caso as mensagens evnviadas pelo cliente
+    private BufferedReader br; // ler dados, as mensagens enviadas pelos clientes
+    private BufferedWriter bw; // enviar dados, as mensagens enviadas pelos clientes
     private String nomeUtilizador; // identificador de cada cliente
-    private PrintWriter out; // printwrinter para imprimir mensagens
+    private PrintWriter out; // printwrinter para imprimir mensagens no sistema
 
-    public static ArrayList<String> listaMensagens = new ArrayList<>(); // Arraylist para dar store as mensagens que vão sendo enviadas
+    public static ArrayList<String> listaMensagens = new ArrayList<>(); /* Arraylist para dar store as mensagens que vão sendo enviadas */
+    /* public static ArrayList<String> listaClients = new ArrayList<>();  ArrayList com o intuito de guardar os utilizadores conectados */
 
 
-    public ClientHandler(Socket socket) {
+    public ConnectionHandler(Socket socket) {
         try {
             this.socket = socket;
             socket.setSoTimeout(120*1000); // timeout para o qual o servidor fica a espera de ouvir informação desta thread.
@@ -24,11 +34,11 @@ public class ClientHandler implements Runnable {
             this.br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             this.out = new PrintWriter(socket.getOutputStream());
             this.nomeUtilizador = br.readLine();
-            clientHandlers.add(this); // adiciona o novo utilizador à array list de modo a que estes possam ler e
+            connectionHandlers.add(this); // adiciona o novo utilizador à array list de modo a que estes possam ler e
                                       // enviar mensagens
-            broadcast("UPDATE: " + nomeUtilizador + " entrou no chat.");
-            updateUsersRequest();
-            messageRequest();
+            broadcast("UPDATE: " + nomeUtilizador + " entrou no chat."); // DIFUNDE A MENSAGEM ATRAVÉS DO SERVIDOR A TODOS OS CLIENTES DE UM NOVO UTILIZADOR SE CONECTOU!
+            updateUsersRequest(); // Imprime ao novo utilizador os utilizadores já conectados.
+            messageRequest(); // Imprime ao novo utilizador as ultimas 10 mensagens do chat
 
         } catch (Exception e) {
             closeConnection(socket, br, bw);
@@ -44,7 +54,8 @@ public class ClientHandler implements Runnable {
         while (socket.isConnected()) {
             try {
                 messageFromClient = br.readLine();
-                // imprimimos neste metodo uma restricao da lista com as mensagens nao poder conter mais do que 10 mensagens
+                // a seguir uma restricao da lista com as mensagens nao poder conter mais do que 10 mensagens e ir atualizando a mesma
+                // metodo auxiliado por https://www.tutorialkart.com/java/how-to-update-an-element-of-arraylist-in-java/
                 if(listaMensagens.size() < 10) {
                     listaMensagens.add(messageFromClient);
                 } else {
@@ -63,21 +74,18 @@ public class ClientHandler implements Runnable {
     }
 
     public void broadcast(String mensagemParaEnviar) {
-        for (ClientHandler clientHandler : clientHandlers) { // iterar para todas as threads
-            try {
-                if (!clientHandler.nomeUtilizador.equals(nomeUtilizador)) {
-                    if (mensagemParaEnviar.split(":")[1].equalsIgnoreCase("UPDATEREQUEST")) {
-                        this.out.println(".UTILIZADORES.");
+        for (ConnectionHandler connectionHandler : connectionHandlers) { // iterar para todas as threads
+            try { //Metodo do update da sessao auxiliado por Nam Ha Minh Java Chat App mais espeficamente as linhas 77 a 81
+                if (!connectionHandler.nomeUtilizador.equals(nomeUtilizador)) {
+                    if (mensagemParaEnviar.equalsIgnoreCase("UPDATE?")) {
+                        this.out.println("UPDATE da SESSÃO");
                         this.out.flush();
                         updateUsersRequest();
                         messageRequest();
-                    /*}/*
-                    /* if (mensagemParaEnviar.split(":")[1].equalsIgnoreCase("SAIR")) {
-                        closeConnection(socket, br, bw); */
                     } else {
-                        clientHandler.bw.write(mensagemParaEnviar);
-                        clientHandler.bw.newLine();
-                        clientHandler.bw.flush();
+                        connectionHandler.bw.write(mensagemParaEnviar);
+                        connectionHandler.bw.newLine();
+                        connectionHandler.bw.flush();
                     }
                 }
 
@@ -90,7 +98,7 @@ public class ClientHandler implements Runnable {
 
   public void messageRequest() {
         if (!listaMensagens.isEmpty()){
-            this.out.println("Messages: ");
+            this.out.println("Historico: ");
             for (int i = 0; i < listaMensagens.size(); i++){ // ciclo para percorrer o arraylist que guarda as mensagens.
                 this.out.println(listaMensagens.get(i));
                 this.out.flush();
@@ -101,10 +109,10 @@ public class ClientHandler implements Runnable {
     }
 
     public void updateUsersRequest() {
-        if(!clientHandlers.isEmpty()) {
+        if(!connectionHandlers.isEmpty()) {
             this.out.println("USERS ONLINE: ");
-            for (int i = 0; i < clientHandlers.size(); i++){
-                this.out.println(clientHandlers.get(i));
+            for (int i = 0; i < connectionHandlers.size(); i++){
+                this.out.println(connectionHandlers.get(i).nomeUtilizador.toString());
                 this.out.flush();
             }
             this.out.println("...");
@@ -113,7 +121,7 @@ public class ClientHandler implements Runnable {
     }
 
     public void closeThread() {
-        clientHandlers.remove(this);
+        connectionHandlers.remove(this);
         broadcast("SESSION_UPDATE: " + nomeUtilizador + " saiu do chat!");
     }
 
@@ -133,4 +141,5 @@ public class ClientHandler implements Runnable {
             e.printStackTrace();
         }
     }
+
 }
