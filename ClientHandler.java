@@ -18,16 +18,17 @@ public class ClientHandler implements Runnable {
 
     public ClientHandler(Socket socket) {
         try {
-
             this.socket = socket;
             socket.setSoTimeout(120*1000); // timeout para o qual o servidor fica a espera de ouvir informação desta thread.
             this.bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             this.br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            this.out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
+            this.out = new PrintWriter(socket.getOutputStream());
             this.nomeUtilizador = br.readLine();
             clientHandlers.add(this); // adiciona o novo utilizador à array list de modo a que estes possam ler e
                                       // enviar mensagens
             broadcast("UPDATE: " + nomeUtilizador + " entrou no chat.");
+            updateUsersRequest();
+            messageRequest();
 
         } catch (Exception e) {
             closeConnection(socket, br, bw);
@@ -43,7 +44,7 @@ public class ClientHandler implements Runnable {
         while (socket.isConnected()) {
             try {
                 messageFromClient = br.readLine();
-                // imprimimos neste metodo a restricao da lista com as mensagens nao poder conter mais do que 10 mensagens
+                // imprimimos neste metodo uma restricao da lista com as mensagens nao poder conter mais do que 10 mensagens
                 if(listaMensagens.size() < 10) {
                     listaMensagens.add(messageFromClient);
                 } else {
@@ -65,12 +66,11 @@ public class ClientHandler implements Runnable {
         for (ClientHandler clientHandler : clientHandlers) { // iterar para todas as threads
             try {
                 if (!clientHandler.nomeUtilizador.equals(nomeUtilizador)) {
-                    if (mensagemParaEnviar.split(":")[1].equalsIgnoreCase("atualizarchat")) {
-                        this.out.println("----INFORMAÇÃO----");
+                    if (mensagemParaEnviar.split(":")[1].equalsIgnoreCase("UPDATEREQUEST")) {
+                        this.out.println(".UTILIZADORES.");
                         this.out.flush();
-                       /* updateUsersRequest(); */
+                        updateUsersRequest();
                         messageRequest();
-                        this.out.println("---------------");
                     /*}/*
                     /* if (mensagemParaEnviar.split(":")[1].equalsIgnoreCase("SAIR")) {
                         closeConnection(socket, br, bw); */
@@ -90,25 +90,27 @@ public class ClientHandler implements Runnable {
 
   public void messageRequest() {
         if (!listaMensagens.isEmpty()){
-            this.out.println("ULTIMAS MENSAGENS DOS UTILIZADORES: ");
-            for (int i = 0; i < listaMensagens.size(); i++){
+            this.out.println("Messages: ");
+            for (int i = 0; i < listaMensagens.size(); i++){ // ciclo para percorrer o arraylist que guarda as mensagens.
                 this.out.println(listaMensagens.get(i));
                 this.out.flush();
             }
-            this.out.println("------------------");
+            this.out.println(".........");
             this.out.flush();
         }
     }
 
-    /* public void updateUsersRequest() {
-        for (ClientHandler clientHandler : clientHandlers) {
-            this.pw.println("USERS ONLINE: ");
-            for (int i = 0; i <clientHandlers.size(); i++){
+    public void updateUsersRequest() {
+        if(!clientHandlers.isEmpty()) {
+            this.out.println("USERS ONLINE: ");
+            for (int i = 0; i < clientHandlers.size(); i++){
                 this.out.println(clientHandlers.get(i));
                 this.out.flush();
             }
+            this.out.println("...");
+            this.out.flush();
         }
-    } */
+    }
 
     public void closeThread() {
         clientHandlers.remove(this);
