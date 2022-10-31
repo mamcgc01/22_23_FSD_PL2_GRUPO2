@@ -22,7 +22,7 @@ public class ConnectionHandler implements Runnable {
     private String nomeUtilizador; // identificador de cada cliente
     private PrintWriter out; // printwrinter para imprimir mensagens no sistema
 
-    public static ArrayList<String> listaMensagens = new ArrayList<>(); /* Arraylist para dar store as mensagens que vão sendo enviadas */
+    public static ArrayList<String> messagesList = new ArrayList<>(); /* Arraylist para dar store as mensagens que vão sendo enviadas */
     /* public static ArrayList<String> listaClients = new ArrayList<>();  ArrayList com o intuito de guardar os utilizadores conectados */
 
 
@@ -56,13 +56,13 @@ public class ConnectionHandler implements Runnable {
                 messageFromClient = br.readLine();
                 // a seguir uma restricao da lista com as mensagens nao poder conter mais do que 10 mensagens e ir atualizando a mesma
                 // metodo auxiliado por https://www.tutorialkart.com/java/how-to-update-an-element-of-arraylist-in-java/
-                if(listaMensagens.size() < 10) {
-                    listaMensagens.add(messageFromClient);
+                if(messagesList.size() < 10) {
+                    messagesList.add(messageFromClient);
                 } else {
-                    for(int k = 0; k < listaMensagens.size(); k++) {
-                        listaMensagens.remove(0);
-                        listaMensagens.set(k, listaMensagens.get(k-1));
-                        listaMensagens.set(k-1, listaMensagens.get(k));
+                    for(int k = 0; k < messagesList.size(); k++) {
+                        messagesList.remove(0);
+                        messagesList.set(k, messagesList.get(k-1));
+                        messagesList.set(k-1, messagesList.get(k));
                     }
                 }
                 broadcast(messageFromClient);
@@ -97,10 +97,10 @@ public class ConnectionHandler implements Runnable {
 
 
   public void messageRequest() {
-        if (!listaMensagens.isEmpty()){
+        if (!messagesList.isEmpty()){
             this.out.println("Historico: ");
-            for (int i = 0; i < listaMensagens.size(); i++){ // ciclo para percorrer o arraylist que guarda as mensagens.
-                this.out.println(listaMensagens.get(i));
+            for (int i = 0; i < messagesList.size(); i++){ // ciclo para percorrer o arraylist que guarda as mensagens.
+                this.out.println(messagesList.get(i));
                 this.out.flush();
             }
             this.out.println(".........");
