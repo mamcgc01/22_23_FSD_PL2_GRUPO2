@@ -6,7 +6,6 @@ import java.net.SocketException;
 public class Servidor {
 
     private ServerSocket svSocket;// objeto responsável por "receber novas conexões e criar uma socket para comunicar"
-    static int DEFAULT_PORT = 2000;
 
     public Servidor(ServerSocket svSocket) throws SocketException {
         this.svSocket = svSocket;

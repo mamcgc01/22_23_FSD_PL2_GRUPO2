@@ -21,7 +21,7 @@ public class AgenteUtilizador {
         }
     }
 
-    public void enviarMensagem() {
+    public void sendToGroupChat() {
         try {
             bw.write(nomeUtilizador);
             bw.newLine();
@@ -33,16 +33,13 @@ public class AgenteUtilizador {
                 bw.write(nomeUtilizador + ": " + mensagemParaEnviar);
                 bw.newLine();
                 bw.flush();
-                if (mensagemParaEnviar.equalsIgnoreCase("bye")) {
-                    closeConnection(socket, br, bw);
-                }
             }
         } catch (Exception e) {
             closeConnection(socket, br, bw);
         }
     }
 
-    public void ouvirMensagem() {
+    public void listenToGroupChat() {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -81,7 +78,7 @@ public class AgenteUtilizador {
         String nomeUtilizador = scanner.nextLine();
         Socket socket = new Socket("localhost", 2000);
         AgenteUtilizador agenteUtilizador = new AgenteUtilizador(socket, nomeUtilizador);
-        agenteUtilizador.ouvirMensagem();
-        agenteUtilizador.enviarMensagem();
+        agenteUtilizador.listenToGroupChat();
+        agenteUtilizador.sendToGroupChat();
     }
 }

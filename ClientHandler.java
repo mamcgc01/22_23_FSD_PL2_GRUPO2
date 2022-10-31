@@ -11,7 +11,7 @@ public class ClientHandler implements Runnable {
     private BufferedReader br; // ler dados,neste caso as mensagens enviadas pelo cliente
     private BufferedWriter bw; // enviar dados, neste caso as mensagens evnviadas pelo cliente
     private String nomeUtilizador; // identificador de cada cliente
-    private PrintWriter pw; // printwrinter para imprimir mensagens
+    private PrintWriter out; // printwrinter para imprimir mensagens
 
     public static ArrayList<String> listaMensagens = new ArrayList<>(); // Arraylist para dar store as mensagens que vão sendo enviadas
 
@@ -23,7 +23,7 @@ public class ClientHandler implements Runnable {
             socket.setSoTimeout(120*1000); // timeout para o qual o servidor fica a espera de ouvir informação desta thread.
             this.bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             this.br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            this.pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
+            this.out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
             this.nomeUtilizador = br.readLine();
             clientHandlers.add(this); // adiciona o novo utilizador à array list de modo a que estes possam ler e
                                       // enviar mensagens
@@ -66,11 +66,11 @@ public class ClientHandler implements Runnable {
             try {
                 if (!clientHandler.nomeUtilizador.equals(nomeUtilizador)) {
                     if (mensagemParaEnviar.split(":")[1].equalsIgnoreCase("atualizarchat")) {
-                        this.pw.println("----INFORMAÇÃO----");
-                        this.pw.flush();
+                        this.out.println("----INFORMAÇÃO----");
+                        this.out.flush();
                        /* updateUsersRequest(); */
                         messageRequest();
-                        this.pw.println("---------------");
+                        this.out.println("---------------");
                     /*}/*
                     /* if (mensagemParaEnviar.split(":")[1].equalsIgnoreCase("SAIR")) {
                         closeConnection(socket, br, bw); */
@@ -90,13 +90,13 @@ public class ClientHandler implements Runnable {
 
   public void messageRequest() {
         if (!listaMensagens.isEmpty()){
-            this.pw.println("ULTIMAS MENSAGENS DOS UTILIZADORES: ");
+            this.out.println("ULTIMAS MENSAGENS DOS UTILIZADORES: ");
             for (int i = 0; i < listaMensagens.size(); i++){
-                this.pw.println(listaMensagens.get(i));
-                this.pw.flush();
+                this.out.println(listaMensagens.get(i));
+                this.out.flush();
             }
-            this.pw.println("------------------");
-            this.pw.flush();
+            this.out.println("------------------");
+            this.out.flush();
         }
     }
 
@@ -104,8 +104,8 @@ public class ClientHandler implements Runnable {
         for (ClientHandler clientHandler : clientHandlers) {
             this.pw.println("USERS ONLINE: ");
             for (int i = 0; i <clientHandlers.size(); i++){
-                this.pw.println(clientHandlers.get(i));
-                this.pw.flush();
+                this.out.println(clientHandlers.get(i));
+                this.out.flush();
             }
         }
     } */
