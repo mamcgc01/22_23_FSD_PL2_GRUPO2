@@ -1,9 +1,15 @@
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.SocketException;
+package Servidor;
 
-public class Servidor {
+import java.net.MalformedURLException;
+import java.rmi.Naming;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+import java.rmi.server.RemoteRef;
+import java.rmi.server.UnicastRemoteObject;
+import java.util.Date;
+import java.util.Vector;
+
+public class Servidor implements Runnable {
 
     private ServerSocket svSckt;// objeto responsável por "receber novas conexões e criar uma socket para comunicar"
 

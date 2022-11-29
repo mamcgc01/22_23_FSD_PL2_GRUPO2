@@ -75,16 +75,16 @@ public class AgenteUtilizador {
         Scanner scan = new Scanner(System.in); //Criamos um scanner para poder ler o nome utilizador que serve como identificador
         System.out.println("Introduza o seu nome de utilizador!");
         String nomeDeUtilizador = scan.nextLine();
-        System.out.println("Introduza o enderco IP ao qual se deseja conectar");
-        String enderecoIP = scan.nextLine();
-        System.out.println("Introduza a porta a qual se quer conectar");
+        //System.out.println("Introduza o enderco IP ao qual se deseja conectar");
+        //String enderecoIP = scan.nextLine();
+      /*   System.out.println("Introduza a porta a qual se quer conectar");
         Integer porta = scan.nextInt();
         while (porta != 8000) {
             System.out.println ("Porta incorreta! ");
             System.out.println ("Introduza uma nova porta: ");
-            porta = scan.nextInt();
-        }
-        Socket sckt = new Socket(enderecoIP, porta); //Para conetar a diferentes computadores numa mesma rede especificar o valr "host" e a "porta"
+            porta = scan.nextInt(); 
+        }*/
+        Socket sckt = new Socket("192.168.80.98", 8000); //Para conetar a diferentes computadores numa mesma rede especificar o valr "host" e a "porta"
         AgenteUtilizador agenteUtilizador = new AgenteUtilizador(sckt, nomeDeUtilizador);
         agenteUtilizador.listenToGroupChat(); // fica sempre a escuta das mensagens do grupo
         agenteUtilizador.sendToGroupChat(); // metodo para enviar mensagens!

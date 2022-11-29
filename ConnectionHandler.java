@@ -1,6 +1,7 @@
 import java.io.*;
 import java.net.Socket;
 import java.util.*;
+import java.rmi.RemoteException;
 import java.util.TimerTask;
 import java.util.Timer;
 
