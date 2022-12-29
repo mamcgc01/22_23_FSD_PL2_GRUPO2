@@ -13,6 +13,7 @@ public class AgenteUtilizador {
     private BufferedWriter bw;
     private String nomeDeUtilizador;
     String SERVICE_NAME = "/PrivateMessaging";
+    public static HashMap<String,String> Clientes = new HashMap<>();
 
     public AgenteUtilizador(Socket socket, String nomeDeUtilizador) {
         try {
@@ -114,6 +115,10 @@ public class AgenteUtilizador {
                                                // identificador
         System.out.println("Introduza o seu nome de utilizador!");
         String nomeDeUtilizador = scan.nextLine();
+        System.out.println("Introduza o IP da sua maquina");
+        String ClientIP = scan.nextLine();
+        Clientes.put(nomeDeUtilizador,ClientIP);
+
         System.out.println("Introduza o enderco IP ao qual se deseja conectar");
         String enderecoIP = scan.nextLine();
         System.out.println("Introduza a porta a qual se quer conectar");
@@ -125,8 +130,7 @@ public class AgenteUtilizador {
             port = scan.nextLine();
             porta = Integer.parseInt(port);
         }
-        System.out.println("Introduza o IP da sua maquina");
-        String ClientIP = scan.nextLine();
+        
 
         Socket sckt = new Socket(enderecoIP, porta); // Para conetar a diferentes computadores numa mesma rede
         PrivateMessageImpl directMessage = null;

@@ -62,8 +62,8 @@ public class ConnectionHandler implements Runnable {
                 } else {
                     for(int k = 0; k < messagesList.size(); k++) {
                         messagesList.remove(0);
-                        messagesList.set(k, messagesList.get(k-1));
-                        messagesList.set(k-1, messagesList.get(k));
+                        messagesList.set(k, messagesList.get(k+1));  //era k-1
+                       //messagesList.set(k-1, messagesList.get(k));
                     }
                 }
                 broadcast(messageFromClient);
@@ -96,6 +96,18 @@ public class ConnectionHandler implements Runnable {
         }
     }
 
+    //Timer que não sei se funciona
+    public void mensagemTemporizada() {
+        Timer t = new Timer();
+        t.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                updateUsersRequest();
+                messageRequest();
+            }
+            
+        }, 0 , 20000); // =20s a unidade é milisegundos
+    }
 
   public void messageRequest() {
         if (!messagesList.isEmpty()){
@@ -104,7 +116,7 @@ public class ConnectionHandler implements Runnable {
                 this.out.println(messagesList.get(i));
                 this.out.flush();
             }
-            this.out.println("FIM");
+            this.out.println("___________________");
             this.out.flush();
         }
     }
@@ -116,7 +128,7 @@ public class ConnectionHandler implements Runnable {
                 this.out.println(connectionHandlers.get(i).nomeUtilizador.toString());
                 this.out.flush();
             }
-            this.out.println("FIM");
+            this.out.println("___________________");
             this.out.flush();
         }
     }
