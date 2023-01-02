@@ -307,6 +307,8 @@ public class AgenteUtilizador {
                                                // identificador
         System.out.println("Introduza o seu nome de utilizador!");
         String nomeDeUtilizador = scan.nextLine();
+        System.out.println("Introduza o IP da sua máquina?");
+        String ClientIP = scan.nextLine();
         System.out.println("Introduza o endereco IP ao qual se deseja conectar");
         String enderecoIP = scan.nextLine();
         System.out.println("Introduza a porta a qual se quer conectar");
