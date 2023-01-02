@@ -26,6 +26,7 @@ public class AgenteUtilizador {
     private BufferedWriter bw;
     private String nomeDeUtilizador;
     String SERVICE_NAME = "/PrivateMessaging";
+    public static HashMap<String,String> Clientes = new HashMap<>();
     private ArrayList<byte[]> lista = new ArrayList<>();
     private int contador = 0;
 
@@ -307,8 +308,9 @@ public class AgenteUtilizador {
                                                // identificador
         System.out.println("Introduza o seu nome de utilizador!");
         String nomeDeUtilizador = scan.nextLine();
-        System.out.println("Introduza o IP da sua máquina?");
+        System.out.println("Introduza o IP da sua maquina");
         String ClientIP = scan.nextLine();
+        Clientes.put(nomeDeUtilizador,ClientIP);
         System.out.println("Introduza o endereco IP ao qual se deseja conectar");
         String enderecoIP = scan.nextLine();
         System.out.println("Introduza a porta a qual se quer conectar");
