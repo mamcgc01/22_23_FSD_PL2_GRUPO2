@@ -1,9 +1,6 @@
 import java.io.*;
 import java.net.Socket;
 import java.util.*;
-import java.rmi.RemoteException;
-import java.util.TimerTask;
-import java.util.Timer;
 
 
 /*
@@ -30,14 +27,14 @@ public class ConnectionHandler implements Runnable {
     public ConnectionHandler(Socket socket) {
         try {
             this.socket = socket;
-            socket.setSoTimeout(120*1000); // timeout para o qual o servidor fica a espera de ouvir informação desta thread.
+            // socket.setSoTimeout(120*1000); // timeout para o qual o servidor fica a espera de ouvir informação desta thread.
             this.bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             this.br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             this.out = new PrintWriter(socket.getOutputStream());
             this.nomeUtilizador = br.readLine();
             connectionHandlers.add(this); // adiciona o novo utilizador à array list de modo a que estes possam ler e
                                       // enviar mensagens
-            broadcast("UPDATE: " + nomeUtilizador + " entrou no chat."); // DIFUNDE A MENSAGEM ATRAVÉS DO SERVIDOR A TODOS OS CLIENTES DE UM NOVO UTILIZADOR SE CONECTOU!
+            broadcast("Sessao: " + nomeUtilizador + " entrou no chat."); // DIFUNDE A MENSAGEM ATRAVÉS DO SERVIDOR A TODOS OS CLIENTES DE UM NOVO UTILIZADOR SE CONECTOU!
             updateUsersRequest(); // Imprime ao novo utilizador os utilizadores já conectados.
             messageRequest(); // Imprime ao novo utilizador as ultimas 10 mensagens do chat
 
@@ -78,8 +75,8 @@ public class ConnectionHandler implements Runnable {
         for (ConnectionHandler connectionHandler : connectionHandlers) { // iterar para todas as threads
             try { //Metodo do update da sessao auxiliado por Nam Ha Minh Java Chat App mais espeficamente as linhas 77 a 81
                 if (!connectionHandler.nomeUtilizador.equals(nomeUtilizador)) {
-                    if (mensagemParaEnviar.split(": ")[1].equalsIgnoreCase("SESSIONUPDATE")) {
-                        this.out.println("UPDATE da SESSÃO");
+                    if (mensagemParaEnviar.split(": ")[1].equalsIgnoreCase("SessionUpdate")) {
+                        this.out.println("Sessao: ");
                         this.out.flush();
                         updateUsersRequest();
                         messageRequest();
@@ -96,30 +93,41 @@ public class ConnectionHandler implements Runnable {
         }
     }
 
-    //Timer que não sei se funciona
-    public void mensagemTemporizada() {
-        Timer t = new Timer();
-        t.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                updateUsersRequest();
-                messageRequest();
-            }
-            
-        }, 0 , 20000); // =20s a unidade é milisegundos
-    }
 
-  public void messageRequest() {
-        if (!messagesList.isEmpty()){
-            this.out.println("Historico: ");
-            for (int i = 0; i < messagesList.size(); i++){ // ciclo para percorrer o arraylist que guarda as mensagens.
-                this.out.println(messagesList.get(i));
-                this.out.flush();
-            }
-            this.out.println("___________________");
-            this.out.flush();
+  // Método que mostra as últimas mensagens do chat //
+  public void messageRequest() throws IOException{
+    if(!messagesList.isEmpty()) {
+        bw.write ("---------------------");
+        bw.newLine();
+        this.bw.flush();
+        this.bw.write("ULTIMAS MENSAGENS: ");
+        bw.newLine();
+        this.bw.flush();
+        if (messagesList.size() <= 10) {
+        for(int i = 0; i < messagesList.size(); i++){ // Ciclo que percorre a lista de mensagens e dá print ás mesmas //
+            this.bw.write(messagesList.get(i));
+            bw.newLine();
+            this.bw.flush();
         }
+        } else {
+            for (int i = messagesList.size() - 10; i < messagesList.size(); i++) {
+                this.bw.write(messagesList.get(i));
+                bw.newLine();
+                this.bw.flush();
+            }
+            this.bw.write("------------------");
+            bw.newLine();
+            this.bw.flush();
+        }
+    } else {
+        this.bw.write ("Sem historico de mensagens! ");
+        this.bw.newLine();
+        this.bw.flush();
+        this.bw.write("---------------------");
+        bw.newLine();
+        this.bw.flush();
     }
+}
 
     public void updateUsersRequest() {
         if(!connectionHandlers.isEmpty()) {
@@ -135,7 +143,7 @@ public class ConnectionHandler implements Runnable {
 
     public void closeThread() {
         connectionHandlers.remove(this);
-        broadcast("SESSION_UPDATE: " + nomeUtilizador + " saiu do chat!");
+        broadcast("Sessao: " + nomeUtilizador + " saiu do chat!");
     }
 
     public void closeConnection(Socket socket, BufferedReader br, BufferedWriter bw) {

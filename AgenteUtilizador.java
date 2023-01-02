@@ -1,10 +1,23 @@
 import java.util.*;
+
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+
 import java.io.*;
 import java.net.Socket;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
+import java.security.InvalidKeyException;
+import java.security.KeyFactory;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.Signature;
+import java.security.spec.X509EncodedKeySpec;
 
 public class AgenteUtilizador {
 
@@ -13,7 +26,8 @@ public class AgenteUtilizador {
     private BufferedWriter bw;
     private String nomeDeUtilizador;
     String SERVICE_NAME = "/PrivateMessaging";
-    public static HashMap<String,String> Clientes = new HashMap<>();
+    private ArrayList<byte[]> lista = new ArrayList<>();
+    private int contador = 0;
 
     public AgenteUtilizador(Socket socket, String nomeDeUtilizador) {
         try {
@@ -48,7 +62,15 @@ public class AgenteUtilizador {
                     bw.newLine();
                     bw.flush();
                 }
-
+                if (userMessage.equals("MensagemSegura")) {
+                    sendPrivateSecureMessage();
+                }
+                if (userMessage.equals("Verificar")) {
+                    VerificarAssinatura();
+                }
+                if (userMessage.equals("Resumo")) {
+                    sendResumo();
+                }
             }
         } catch (Exception e) {
             closeConnection(socket, br, bw);
@@ -94,9 +116,11 @@ public class AgenteUtilizador {
 
         System.getProperties().put("java.security.policy", "./server.policy");
 
-       /* if (System.getSecurityManager() == null) {
-            System.setSecurityManager(new SecurityManager());
-        } */
+        /*
+         * if (System.getSecurityManager() == null) {
+         * System.setSecurityManager(new SecurityManager());
+         * }
+         */
 
         try {
             LocateRegistry.createRegistry(1099);
@@ -110,16 +134,180 @@ public class AgenteUtilizador {
         }
     }
 
+    private void sendResumo() throws RemoteException, NoSuchAlgorithmException, InvalidKeyException,
+            IllegalBlockSizeException, UnsupportedEncodingException {
+
+        try {
+
+            Scanner scanner = new Scanner(System.in);
+            System.out.println("IP?");
+            String IP = scanner.nextLine();
+            System.out.println("Insira a mensagem que deseja fazer resumo: ");
+            String message = scanner.nextLine();
+
+            PrivateMessageInterface privateMessageSecureInterface = (PrivateMessageInterface) LocateRegistry
+                    .getRegistry(IP)
+                    .lookup(SERVICE_NAME);
+
+            // Creating the MessageDigest object
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            // Passing data to the created MessageDigest Object
+            md.update(message.getBytes());
+
+            // Compute the message digest
+            byte[] digest = md.digest();
+            System.out.println(digest);
+
+            // Converting the byte array in to HexString format
+            StringBuffer hexString = new StringBuffer();
+
+            for (int i = 0; i < digest.length; i++) {
+                hexString.append(Integer.toHexString(0xFF & digest[i]));
+            }
+            System.out.println("Hex format : " + hexString.toString());
+            String resumo = hexString.toString();
+            String privateMessage = "Resumo: " + resumo;
+            privateMessageSecureInterface.sendMessage(IP, privateMessage);
+        } catch (Exception eh) {
+            eh.printStackTrace();
+        }
+
+    }
+
+    public void sendPrivateSecureMessage() throws RemoteException, NoSuchAlgorithmException, InvalidKeyException,
+            IllegalBlockSizeException, UnsupportedEncodingException {
+        try {
+
+            Scanner scanner = new Scanner(System.in);
+            System.out.println("Qual o IP do utilizador a quem deseja enviar mensagem?");
+            String IP = scanner.nextLine();
+            PrivateMessageInterface privateMessageSecureInterface = (PrivateMessageInterface) LocateRegistry
+                    .getRegistry(IP)
+                    .lookup(SERVICE_NAME);
+            System.out.print("Introduza a mensagem que deseja enviar: ");
+            String userMessage = scanner.nextLine();
+
+            // Creating the MessageDigest object
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+
+            // Passing data to the created MessageDigest Object
+            md.update(userMessage.getBytes());
+
+            // Compute the message digest
+            byte[] digest = md.digest();
+            System.out.println(digest);
+
+            // Converting the byte array in to HexString format
+            StringBuffer hexString = new StringBuffer();
+
+            for (int i = 0; i < digest.length; i++) {
+                hexString.append(Integer.toHexString(0xFF & digest[i]));
+            }
+            System.out.println("Hex format : " + hexString.toString());
+            String resumo = hexString.toString();
+
+            // Creating a Signature object
+            Signature sign = Signature.getInstance("SHA256withRSA");
+
+            // Creating KeyPair generator object
+            KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance("RSA");
+
+            // Initializing the key pair generator
+            keyPairGen.initialize(2048);
+
+            // Generating the pair of keys
+            KeyPair pair = keyPairGen.generateKeyPair();
+
+            // Creating a Cipher object
+            Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+
+            // Initializing a Cipher object
+            cipher.init(Cipher.ENCRYPT_MODE, pair.getPrivate());
+
+            // Adding data to the cipher
+            byte[] input = resumo.getBytes();
+            cipher.update(input);
+
+            // encrypting the data
+            byte[] cipherText = cipher.doFinal();
+            lista.add(cipherText);
+            System.out.println(new String(cipherText, "UTF8"));
+            String encript = new String(cipherText, "UTF8");
+            String posicao = "Mensagem encriptada na posicao: " + contador;
+            contador = contador + 1;
+
+            PublicKey public_key = pair.getPublic();
+            System.out.println("PUBLIC KEY::" + public_key);
+
+            // converting public key to byte
+            byte[] byte_pubkey = public_key.getEncoded();
+            System.out.println("\nBYTE KEY::: " + byte_pubkey);
+
+            // converting byte to String
+            String str_key = Base64.getEncoder().encodeToString(byte_pubkey);
+            // String str_key = new String(byte_pubkey,Charset.);
+            System.out.println("\nSTRING KEY::" + str_key);
+
+            privateMessageSecureInterface.sendMessageSecure(IP, userMessage, encript, str_key, posicao);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void VerificarAssinatura() throws RemoteException,
+            NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, UnsupportedEncodingException {
+
+        try {
+
+            Scanner scanner = new Scanner(System.in);
+            System.out.println("IP?");
+            String IP = scanner.nextLine();
+            System.out.println("Insira a posicao: ");
+            String posi = scanner.nextLine();
+            System.out.println("Insira a chave publica ");
+            String chave = scanner.nextLine();
+
+            // converting string to Bytes
+            byte[] byte_pubkey = Base64.getDecoder().decode(chave);
+            System.out.println("BYTE KEY::" + byte_pubkey);
+
+            PublicKey publicKey = KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(byte_pubkey));
+            System.out.println("Public KEY::" + publicKey);
+
+            // Creating a Cipher object
+            Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+
+            // Initializing the same cipher for decryption
+            cipher.init(Cipher.DECRYPT_MODE, publicKey);
+
+            // Adding data to the cipher
+            int numeroConvertido = Integer.parseInt(posi);
+            cipher.update(lista.get(numeroConvertido));
+
+            // Decrypting the text
+            byte[] decipheredText = cipher.doFinal();
+            System.out.println(new String(decipheredText));
+            String textoDecifrado = new String(decipheredText);
+
+            PrivateMessageInterface privateMessageSecureInterface = (PrivateMessageInterface) LocateRegistry
+                    .getRegistry(IP)
+                    .lookup(SERVICE_NAME);
+
+            privateMessageSecureInterface.sendMessage(IP, textoDecifrado);
+
+        } catch (Exception eh) {
+            eh.printStackTrace();
+        }
+
+    }
+
     public static void main(String[] args) throws IOException {
         Scanner scan = new Scanner(System.in); // Criamos um scanner para poder ler o nome utilizador que serve como
                                                // identificador
         System.out.println("Introduza o seu nome de utilizador!");
         String nomeDeUtilizador = scan.nextLine();
-        System.out.println("Introduza o IP da sua maquina");
-        String ClientIP = scan.nextLine();
-        Clientes.put(nomeDeUtilizador,ClientIP);
-
-        System.out.println("Introduza o enderco IP ao qual se deseja conectar");
+        System.out.println("Introduza o endereco IP ao qual se deseja conectar");
         String enderecoIP = scan.nextLine();
         System.out.println("Introduza a porta a qual se quer conectar");
         String port = scan.nextLine();
