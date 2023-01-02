@@ -42,10 +42,6 @@ public class Servidor {
         }
     }
 
-    /* public void timerTask() {
-        Método com o intuito de imprimir um updateUsersRequest() de 120 em 120 segundos.
-    }*/
-
     public static void main(String[] args) throws IOException {
         System.out.println("SERVIDOR INICIADO: WAITING FOR CONNECTIONS ");
         ServerSocket serverSckt = new ServerSocket(8000);

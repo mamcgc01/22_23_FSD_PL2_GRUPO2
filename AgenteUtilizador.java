@@ -93,9 +93,11 @@ public class AgenteUtilizador {
 
         System.getProperties().put("java.security.policy", "./server.policy");
 
-       /* if (System.getSecurityManager() == null) {
-            System.setSecurityManager(new SecurityManager());
-        } */
+        /*
+         * if (System.getSecurityManager() == null) {
+         * System.setSecurityManager(new SecurityManager());
+         * }
+         */
 
         try {
             LocateRegistry.createRegistry(1099);
@@ -114,7 +116,7 @@ public class AgenteUtilizador {
                                                // identificador
         System.out.println("Introduza o seu nome de utilizador!");
         String nomeDeUtilizador = scan.nextLine();
-        System.out.println("Introduza o enderco IP ao qual se deseja conectar");
+        System.out.println("Introduza o endereco IP ao qual se deseja conectar");
         String enderecoIP = scan.nextLine();
         System.out.println("Introduza a porta a qual se quer conectar");
         String port = scan.nextLine();
