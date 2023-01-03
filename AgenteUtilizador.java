@@ -63,7 +63,7 @@ public class AgenteUtilizador {
                     System.out.println("Qual o IP do Utilizador a quem deseja enviar mensagem?");
                     String IP = scanner.nextLine();
 
-                    if(!ClientesMP.containsValue(IP)){
+                    if(ClientesMP.containsValue(IP)==true){
 
                     PrivateMessageInterface privateMessageInterface = (PrivateMessageInterface) LocateRegistry
                             .getRegistry(IP).lookup(SERVICE_NAME);
@@ -71,7 +71,7 @@ public class AgenteUtilizador {
                     userMessage = scanner.nextLine();
                     privateMessageInterface.sendMessage(nomeDeUtilizador, userMessage);
 
-                    } else {
+                    } else if(ClientesMP.containsValue(IP)==false) {
                     System.out.print("O utilizador " + nomeDeUtilizador +" nao pretende receber mensagens privadas");
                     bw.write(nomeDeUtilizador + ": " + userMessage);
                     bw.newLine();
