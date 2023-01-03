@@ -27,25 +27,27 @@ public class AgenteUtilizador {
     private String nomeDeUtilizador;
     String SERVICE_NAME = "/PrivateMessaging";
     public static HashMap<String, String> Clientes = new HashMap<>();
+    public static HashMap<String, String> ClientesMP = new HashMap<>();
     private ArrayList<byte[]> lista = new ArrayList<>();
     private int contador = 0;
     private boolean receberMP = true;
-    public static boolean mensagem_recebida = false;
+    private String ClientIP;
     public static boolean conexao_terminada = false;
     static Timer timer = new Timer();
     static int SESSION_TIMEOUT = 240 * 1000;
 
-    public AgenteUtilizador(Socket socket, String nomeDeUtilizador, String receberMensagens) {
+    public AgenteUtilizador(Socket socket, String nomeDeUtilizador, String ClientIP, String receberMensagens) {
         try {
             this.socket = socket;
             this.bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             this.br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             this.nomeDeUtilizador = nomeDeUtilizador;
+            this.ClientIP = ClientIP;
 
             if (receberMensagens.equalsIgnoreCase("sim")) {
-                receberMP = true;
+                ClientesMP.put(nomeDeUtilizador, ClientIP);
             } else {
-                receberMP = false;
+
             }
 
         } catch (IOException e) {
@@ -69,16 +71,27 @@ public class AgenteUtilizador {
                 if (userMessage.equals("MensagemPrivada")) {
                     System.out.println("Qual o IP do Utilizador a quem deseja enviar mensagem?");
                     String IP = scanner.nextLine();
+
+                    if(ClientesMP.containsValue(IP)){
+
                     PrivateMessageInterface privateMessageInterface = (PrivateMessageInterface) LocateRegistry
                             .getRegistry(IP).lookup(SERVICE_NAME);
                     System.out.print("Introduza a mensagem que deseja enviar: ");
                     userMessage = scanner.nextLine();
                     privateMessageInterface.sendMessage(nomeDeUtilizador, userMessage);
+                    
+                    } else {
+                    System.out.print("O utilizador " + nomeDeUtilizador +" nao pretende receber mensagens privadas");
+                    bw.write(nomeDeUtilizador + ": " + userMessage);
+                    bw.newLine();
+                    bw.flush();
+                    }
                 } else {
                     bw.write(nomeDeUtilizador + ": " + userMessage);
                     bw.newLine();
                     bw.flush();
                 }
+                
                 if (userMessage.equals("MensagemSegura")) {
                     sendPrivateSecureMessage();
                 }
@@ -89,10 +102,12 @@ public class AgenteUtilizador {
                     sendResumo();
                 }
             }
+            
         } catch (Exception e) {
             closeConnection(socket, br, bw);
         }
     }
+
 
     public void listenToGroupChat() { // metodo para ouvir mensagens do grupo ao mesmo tempo que podemos estar a
                                       // enviar novas mensagens sem ter de aguardar, dai ser necessario o Override e
@@ -366,7 +381,7 @@ public class AgenteUtilizador {
         } catch (Exception e) {
         } // especificar o valor "host" e a "porta"
 
-        AgenteUtilizador agenteUtilizador = new AgenteUtilizador(sckt, nomeDeUtilizador, receberMensagens);
+        AgenteUtilizador agenteUtilizador = new AgenteUtilizador(sckt, nomeDeUtilizador, ClientIP, receberMensagens);
         agenteUtilizador.bindRMI(directMessage, ClientIP);
         agenteUtilizador.listenToGroupChat(); // fica sempre a escuta das mensagens do grupo
         agenteUtilizador.sendToGroupChat(); // metodo para enviar mensagens!
