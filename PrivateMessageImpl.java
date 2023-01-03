@@ -11,7 +11,7 @@ public class PrivateMessageImpl extends java.rmi.server.UnicastRemoteObject impl
     @Override
     public String sendMessage(String nomeUtilizador, String mensagemPrivada) throws RemoteException {
         // TODO Auto-generated method stub
-        System.out.print("Mensagem privada de: " + nomeUtilizador + ": " + mensagemPrivada);
+        System.out.print("Mensagem privada de " + nomeUtilizador + ": " + mensagemPrivada);
         return mensagemPrivada;
     }
 

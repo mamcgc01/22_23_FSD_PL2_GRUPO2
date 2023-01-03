@@ -30,8 +30,7 @@ public class AgenteUtilizador {
     public static HashMap<String, String> ClientesMP = new HashMap<>();
     private ArrayList<byte[]> lista = new ArrayList<>();
     private int contador = 0;
-    private boolean receberMP = true;
-    private String ClientIP;
+    private String ClienteIP;
     public static boolean conexao_terminada = false;
     static Timer timer = new Timer();
     static int SESSION_TIMEOUT = 240 * 1000;
@@ -42,13 +41,9 @@ public class AgenteUtilizador {
             this.bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             this.br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             this.nomeDeUtilizador = nomeDeUtilizador;
-            this.ClientIP = ClientIP;
-
-            if (receberMensagens.equalsIgnoreCase("sim")) {
+            if (receberMensagens.equalsIgnoreCase("sim")) 
                 ClientesMP.put(nomeDeUtilizador, ClientIP);
-            } else {
-
-            }
+            
 
         } catch (IOException e) {
             closeConnection(socket, br, bw);
@@ -61,10 +56,6 @@ public class AgenteUtilizador {
             bw.newLine();
             bw.flush();
 
-            bw.write(String.valueOf(receberMP));
-            bw.newLine();
-            bw.flush();
-
             Scanner scanner = new Scanner(System.in);
             while (socket.isConnected()) {
                 String userMessage = scanner.nextLine();
@@ -72,14 +63,14 @@ public class AgenteUtilizador {
                     System.out.println("Qual o IP do Utilizador a quem deseja enviar mensagem?");
                     String IP = scanner.nextLine();
 
-                    if(ClientesMP.containsValue(IP)){
+                    if(!ClientesMP.containsValue(IP)){
 
                     PrivateMessageInterface privateMessageInterface = (PrivateMessageInterface) LocateRegistry
                             .getRegistry(IP).lookup(SERVICE_NAME);
                     System.out.print("Introduza a mensagem que deseja enviar: ");
                     userMessage = scanner.nextLine();
                     privateMessageInterface.sendMessage(nomeDeUtilizador, userMessage);
-                    
+
                     } else {
                     System.out.print("O utilizador " + nomeDeUtilizador +" nao pretende receber mensagens privadas");
                     bw.write(nomeDeUtilizador + ": " + userMessage);
