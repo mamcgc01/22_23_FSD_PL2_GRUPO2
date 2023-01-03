@@ -18,7 +18,7 @@ public class PrivateMessageImpl extends java.rmi.server.UnicastRemoteObject impl
     @Override
     public String sendMessageSecure(String nomeUtilizador, String mensagemPrivadaSegura, String signature, String pubkey, String pos) throws RemoteException {
         // TODO Auto-generated method stub
-        String tudo = "Mensagem segura de: "+ nomeUtilizador + ": " + mensagemPrivadaSegura + signature + pubkey + pos;
+        String tudo = "Mensagem segura de "+ nomeUtilizador + ": " + mensagemPrivadaSegura + signature + pubkey + pos;
         return tudo;
     }
 
