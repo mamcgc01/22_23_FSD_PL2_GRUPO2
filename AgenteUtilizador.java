@@ -26,16 +26,28 @@ public class AgenteUtilizador {
     private BufferedWriter bw;
     private String nomeDeUtilizador;
     String SERVICE_NAME = "/PrivateMessaging";
-    public static HashMap<String,String> Clientes = new HashMap<>();
+    public static HashMap<String, String> Clientes = new HashMap<>();
     private ArrayList<byte[]> lista = new ArrayList<>();
     private int contador = 0;
+    private boolean receberMP = true;
+    public static boolean mensagem_recebida = false;
+    public static boolean conexao_terminada = false;
+    static Timer timer = new Timer();
+    static int SESSION_TIMEOUT = 240 * 1000;
 
-    public AgenteUtilizador(Socket socket, String nomeDeUtilizador) {
+    public AgenteUtilizador(Socket socket, String nomeDeUtilizador, String receberMensagens) {
         try {
             this.socket = socket;
             this.bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             this.br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             this.nomeDeUtilizador = nomeDeUtilizador;
+
+            if (receberMensagens.equalsIgnoreCase("sim")) {
+                receberMP = true;
+            } else {
+                receberMP = false;
+            }
+
         } catch (IOException e) {
             closeConnection(socket, br, bw);
         }
@@ -44,6 +56,10 @@ public class AgenteUtilizador {
     public void sendToGroupChat() {
         try {
             bw.write(nomeDeUtilizador);
+            bw.newLine();
+            bw.flush();
+
+            bw.write(String.valueOf(receberMP));
             bw.newLine();
             bw.flush();
 
@@ -303,14 +319,34 @@ public class AgenteUtilizador {
 
     }
 
+    // Método que em caso de erro fecha o socket de ligação e os buffers de entrada
+    // e saída //
+    public static void fecharTudo(Socket socket, BufferedReader br, BufferedWriter bw) {
+        try {
+            if (bw != null) {
+                bw.close();
+            }
+            if (socket != null) { // Fechando o socket ira tambem fechar o Input e outputstream, assim nao e
+                                  // necessario fechar//
+                socket.close();
+            }
+            conexao_terminada = true;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void main(String[] args) throws IOException {
         Scanner scan = new Scanner(System.in); // Criamos um scanner para poder ler o nome utilizador que serve como
                                                // identificador
         System.out.println("Introduza o seu nome de utilizador!");
         String nomeDeUtilizador = scan.nextLine();
+        System.out.println("Pretende receber mensagens privadas de outros utilizadores (sim ou nao)");
+        String receberMensagens = scan.nextLine();
         System.out.println("Introduza o IP da sua maquina");
         String ClientIP = scan.nextLine();
-        Clientes.put(nomeDeUtilizador,ClientIP);
+        Clientes.put(nomeDeUtilizador, ClientIP);
         System.out.println("Introduza o endereco IP ao qual se deseja conectar");
         String enderecoIP = scan.nextLine();
         System.out.println("Introduza a porta a qual se quer conectar");
@@ -322,17 +358,15 @@ public class AgenteUtilizador {
             port = scan.nextLine();
             porta = Integer.parseInt(port);
         }
-        
 
         Socket sckt = new Socket(enderecoIP, porta); // Para conetar a diferentes computadores numa mesma rede
         PrivateMessageImpl directMessage = null;
         try {
             directMessage = new PrivateMessageImpl();
         } catch (Exception e) {
-            // TODO: handle exception
         } // especificar o valor "host" e a "porta"
 
-        AgenteUtilizador agenteUtilizador = new AgenteUtilizador(sckt, nomeDeUtilizador);
+        AgenteUtilizador agenteUtilizador = new AgenteUtilizador(sckt, nomeDeUtilizador, receberMensagens);
         agenteUtilizador.bindRMI(directMessage, ClientIP);
         agenteUtilizador.listenToGroupChat(); // fica sempre a escuta das mensagens do grupo
         agenteUtilizador.sendToGroupChat(); // metodo para enviar mensagens!
