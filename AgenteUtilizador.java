@@ -41,9 +41,8 @@ public class AgenteUtilizador {
             this.bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             this.br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             this.nomeDeUtilizador = nomeDeUtilizador;
-            if (receberMensagens.equalsIgnoreCase("sim")) 
+            if (receberMensagens.equalsIgnoreCase("sim"))
                 ClientesMP.put(nomeDeUtilizador, ClientIP);
-            
 
         } catch (IOException e) {
             closeConnection(socket, br, bw);
@@ -63,7 +62,7 @@ public class AgenteUtilizador {
                     System.out.println("Qual o IP do Utilizador a quem deseja enviar mensagem?");
                     String IP = scanner.nextLine();
 
-                    if(ClientesMP.containsValue(IP)==true){
+                    /* if(ClientesMP.containsValue(IP)) */
 
                     PrivateMessageInterface privateMessageInterface = (PrivateMessageInterface) LocateRegistry
                             .getRegistry(IP).lookup(SERVICE_NAME);
@@ -71,18 +70,21 @@ public class AgenteUtilizador {
                     userMessage = scanner.nextLine();
                     privateMessageInterface.sendMessage(nomeDeUtilizador, userMessage);
 
-                    } else if(ClientesMP.containsValue(IP)==false) {
-                    System.out.print("O utilizador " + nomeDeUtilizador +" nao pretende receber mensagens privadas");
-                    bw.write(nomeDeUtilizador + ": " + userMessage);
-                    bw.newLine();
-                    bw.flush();
-                    }
+                    /*
+                     * else if(ClientesMP.containsValue(IP)==false) {
+                     * System.out.print("O utilizador " + nomeDeUtilizador
+                     * +" nao pretende receber mensagens privadas");
+                     * bw.write(nomeDeUtilizador + ": " + userMessage);
+                     * bw.newLine();
+                     * bw.flush();
+                     * }
+                     */
                 } else {
                     bw.write(nomeDeUtilizador + ": " + userMessage);
                     bw.newLine();
                     bw.flush();
                 }
-                
+
                 if (userMessage.equals("MensagemSegura")) {
                     sendPrivateSecureMessage();
                 }
@@ -93,12 +95,11 @@ public class AgenteUtilizador {
                     sendResumo();
                 }
             }
-            
+
         } catch (Exception e) {
             closeConnection(socket, br, bw);
         }
     }
-
 
     public void listenToGroupChat() { // metodo para ouvir mensagens do grupo ao mesmo tempo que podemos estar a
                                       // enviar novas mensagens sem ter de aguardar, dai ser necessario o Override e
